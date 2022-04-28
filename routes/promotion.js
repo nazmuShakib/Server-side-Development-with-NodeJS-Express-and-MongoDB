@@ -1,49 +1,47 @@
 const express = require('express')
+const {
+	getAllPromotions,
+	addPromotion,
+	deleteAllPromotions,
+	getPromotionById,
+	updatePromotion,
+	deletePromotion,
+} = require('./helper/promotionHelper')
 
 const router = express.Router()
 
 router
 	.route('/')
-	.get((req, res) => {
-		res.json({
-			message: 'will send all the promotions',
-		})
+	.get((req, res, next) => {
+		getAllPromotions(req, res, next)
 	})
-	.post((req, res) => {
-		res.json({
-			message: 'will add a new promotion',
-		})
+	.post((req, res, next) => {
+		addPromotion(req, res, next)
 	})
-	.put((req, res) => {
+	.put((req, res, next) => {
 		res.json({
 			message: 'not supported',
 		})
+		next()
 	})
-	.delete((req, res) => {
-		res.json({
-			message: 'will delete all the promotions',
-		})
+	.delete((req, res, next) => {
+		deleteAllPromotions(req, res, next)
 	})
 router
 	.route('/:promotionId')
-	.get((req, res) => {
-		res.json({
-			message: 'will send promotion with specific id',
-		})
+	.get((req, res, next) => {
+		getPromotionById(req, res, next)
 	})
-	.post((req, res) => {
+	.post((req, res, next) => {
 		res.json({
 			message: 'not supported',
 		})
+		next()
 	})
-	.put((req, res) => {
-		res.json({
-			message: 'will update promotion with specific id',
-		})
+	.put((req, res, next) => {
+		updatePromotion(req, res, next)
 	})
-	.delete((req, res) => {
-		res.json({
-			message: 'will delete promotion with specific id',
-		})
+	.delete((req, res, next) => {
+		deletePromotion(req, res, next)
 	})
 module.exports = router

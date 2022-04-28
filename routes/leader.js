@@ -1,49 +1,47 @@
 const express = require('express')
+const {
+	getAllLeaders,
+	getLeaderById,
+	addLeader,
+	updateLeader,
+	deleteAllLeaders,
+	deleteLeader,
+} = require('./helper/leaderHelper')
 
 const router = express.Router()
 
 router
 	.route('/')
-	.get((req, res) => {
-		res.json({
-			message: 'will send all the leaders',
-		})
+	.get((req, res, next) => {
+		getAllLeaders(req, res, next)
 	})
-	.post((req, res) => {
-		res.json({
-			message: 'will add a new leader',
-		})
+	.post((req, res, next) => {
+		addLeader(req, res, next)
 	})
-	.put((req, res) => {
+	.put((req, res, next) => {
 		res.json({
 			message: 'not supported',
 		})
+		next()
 	})
-	.delete((req, res) => {
-		res.json({
-			message: 'will delete all the leaders',
-		})
+	.delete((req, res, next) => {
+		deleteAllLeaders(req, res, next)
 	})
 router
 	.route('/:leaderId')
-	.get((req, res) => {
-		res.json({
-			message: 'will send leader with specific id',
-		})
+	.get((req, res, next) => {
+		getLeaderById(req, res, next)
 	})
-	.post((req, res) => {
+	.post((req, res, next) => {
 		res.json({
 			message: 'not supported',
 		})
+		next()
 	})
-	.put((req, res) => {
-		res.json({
-			message: 'will update leader with specific id',
-		})
+	.put((req, res, next) => {
+		updateLeader(req, res, next)
 	})
-	.delete((req, res) => {
-		res.json({
-			message: 'will delete leader with specific id',
-		})
+	.delete((req, res, next) => {
+		deleteLeader(req, res, next)
 	})
 module.exports = router
