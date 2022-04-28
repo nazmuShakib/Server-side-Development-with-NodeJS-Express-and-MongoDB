@@ -1,0 +1,19 @@
+{
+	"name": "server_side_software_development",
+	"type": "commonjs",
+	"version": "1.0.0",
+	"description": "Simple REST API",
+	"main": "index.js",
+	"author": "nazmuShakib",
+	"license": "MIT",
+	"scripts": {},
+	"devDependencies": {
+		"eslint": "^8.14.0",
+		"eslint-config-airbnb-base": "^15.0.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-import": "^2.26.0",
+		"eslint-plugin-prettier": "^4.0.0",
+		"nodemon": "^2.0.15",
+		"prettier": "^2.6.2"
+	}
+}
