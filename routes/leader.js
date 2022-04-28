@@ -8,6 +8,8 @@ const {
 	deleteLeader,
 } = require('./helper/leaderHelper')
 
+const { verifyAdmin, verifyUser } = require('../middleware/authenticate')
+
 const router = express.Router()
 
 router
@@ -15,16 +17,16 @@ router
 	.get((req, res, next) => {
 		getAllLeaders(req, res, next)
 	})
-	.post((req, res, next) => {
+	.post(verifyUser, verifyAdmin, (req, res, next) => {
 		addLeader(req, res, next)
 	})
-	.put((req, res, next) => {
+	.put(verifyUser, verifyAdmin, (req, res, next) => {
 		res.json({
 			message: 'not supported',
 		})
 		next()
 	})
-	.delete((req, res, next) => {
+	.delete(verifyUser, verifyAdmin, (req, res, next) => {
 		deleteAllLeaders(req, res, next)
 	})
 router
@@ -32,16 +34,16 @@ router
 	.get((req, res, next) => {
 		getLeaderById(req, res, next)
 	})
-	.post((req, res, next) => {
+	.post(verifyUser, verifyAdmin, (req, res, next) => {
 		res.json({
 			message: 'not supported',
 		})
 		next()
 	})
-	.put((req, res, next) => {
+	.put(verifyUser, verifyAdmin, (req, res, next) => {
 		updateLeader(req, res, next)
 	})
-	.delete((req, res, next) => {
+	.delete(verifyUser, verifyAdmin, (req, res, next) => {
 		deleteLeader(req, res, next)
 	})
 module.exports = router

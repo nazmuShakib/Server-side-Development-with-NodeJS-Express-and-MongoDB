@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 const app = express()
 
 app.use(express.json())
+app.use('/users', require('./routes/user'))
 app.use('/dishes', require('./routes/dish'))
 app.use('/promotions', require('./routes/promotion'))
 app.use('/leaders', require('./routes/leader'))

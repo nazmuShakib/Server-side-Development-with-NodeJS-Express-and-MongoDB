@@ -8,6 +8,8 @@ const {
 	deleteDish,
 } = require('./helper/dishHelper')
 
+const { verifyAdmin, verifyUser } = require('../middleware/authenticate')
+
 const router = express.Router()
 
 router
@@ -15,16 +17,16 @@ router
 	.get((req, res, next) => {
 		getAllDishes(req, res, next)
 	})
-	.post((req, res, next) => {
+	.post(verifyUser, verifyAdmin, (req, res, next) => {
 		addDish(req, res, next)
 	})
-	.put((req, res, next) => {
+	.put(verifyUser, verifyAdmin, (req, res, next) => {
 		res.json({
 			message: 'not supported',
 		})
 		next()
 	})
-	.delete((req, res, next) => {
+	.delete(verifyUser, verifyAdmin, (req, res, next) => {
 		deleteAllDishes(req, res, next)
 	})
 router
@@ -32,16 +34,16 @@ router
 	.get((req, res, next) => {
 		getDishById(req, res, next)
 	})
-	.post((req, res, next) => {
+	.post(verifyUser, verifyAdmin, (req, res, next) => {
 		res.json({
 			message: 'not supported',
 		})
 		next()
 	})
-	.put((req, res, next) => {
+	.put(verifyUser, verifyAdmin, (req, res, next) => {
 		updateDish(req, res, next)
 	})
-	.delete((req, res, next) => {
+	.delete(verifyUser, verifyAdmin, (req, res, next) => {
 		deleteDish(req, res, next)
 	})
 module.exports = router
