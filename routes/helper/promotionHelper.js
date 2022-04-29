@@ -5,7 +5,6 @@ const getAllPromotions = async (req, res, next) => {
 		const promotions = await Promotion.find(
 			{},
 			{
-				_id: 0,
 				__v: 0,
 				createdAt: 0,
 				updatedAt: 0,
@@ -31,7 +30,6 @@ const addPromotion = async (req, res, next) => {
 const getPromotionById = async (req, res, next) => {
 	try {
 		const promotion = await Promotion.findById(req.params.promotionId, {
-			_id: 0,
 			__v: 0,
 			createdAt: 0,
 			updatedAt: 0,
@@ -87,6 +85,105 @@ const deletePromotion = async (req, res, next) => {
 		next(err)
 	}
 }
+const getComment = async (req, res, next) => {
+	try {
+		const promotions = await Promotion.findById(req.params.promotionId, {
+			__v: 0,
+			createdAt: 0,
+			updatedAt: 0,
+		})
+			.populate('comments.author', '-_id -__v -password -admin')
+			.exec()
+		if (promotions) {
+			res.json(promotions.comments)
+			next()
+		} else {
+			const err = new Error('Promotion not found.')
+			err.status = 404
+			next(err)
+		}
+		next()
+	} catch (err) {
+		next(err)
+	}
+}
+const postComment = async (req, res, next) => {
+	try {
+		const promotion = await Promotion.findById(req.params.promotionId)
+		if (promotion) {
+			req.body.author = req.user.userID
+			await promotion.comments.push(req.body)
+			await promotion.save()
+			res.json({
+				message: 'New comment posted.',
+			})
+			next()
+		} else {
+			const err = new Error('Promotion not found')
+			err.status = 404
+			next(err)
+		}
+	} catch (err) {
+		next(err)
+	}
+}
+const updateComment = async (req, res, next) => {
+	try {
+		const promotion = await Promotion.findById(req.params.promotionId).populate(
+			'comments.author'
+		)
+		const id1 = promotion.comments.id(req.params.commentId).author.id
+		const id2 = req.user.userID
+		if (id1 === id2) {
+			if (promotion && promotion.comments.id(req.params.commentId) && req.body) {
+				if (req.body.rating)
+					promotion.comments.id(req.params.commentId).rating = req.body.rating
+				if (req.body.comment)
+					promotion.comments.id(req.params.commentId).comment = req.body.comment
+				await promotion.save()
+				res.json({
+					message: 'Updated comment.',
+				})
+			} else {
+				next(new Error('No promotions'))
+			}
+			next()
+		} else {
+			const err = new Error('Promotion not found.')
+			err.status = 404
+			next(err)
+		}
+	} catch (err) {
+		next(err)
+	}
+}
+const deleteComment = async (req, res, next) => {
+	try {
+		const promotion = await Promotion.findById(req.params.promotionId).populate(
+			'comments.author'
+		)
+		const id1 = promotion.comments.id(req.params.commentId).author.id
+		const id2 = req.user.userID
+		if (id1 === id2) {
+			if (promotion && promotion.comments.id(req.params.commentId)) {
+				promotion.comments.id(req.params.commentId).remove()
+				promotion.save()
+				res.json({
+					message: 'Deleted comment.',
+				})
+			} else {
+				next(new Error('No promotions'))
+			}
+			next()
+		} else {
+			const err = new Error('Promotion not found.')
+			err.status = 404
+			next(err)
+		}
+	} catch (err) {
+		next(err)
+	}
+}
 module.exports = {
 	getAllPromotions,
 	addPromotion,
@@ -94,4 +191,8 @@ module.exports = {
 	getPromotionById,
 	updatePromotion,
 	deletePromotion,
+	getComment,
+	postComment,
+	updateComment,
+	deleteComment,
 }

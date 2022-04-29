@@ -7,11 +7,12 @@ const verifyUser = (req, res, next) => {
 			const token = authorization.split(' ')[1]
 			const decoded = jwt.verify(token, process.env.ACCESS_TOKEN)
 			if (decoded) {
-				const { name, email, admin } = decoded
+				const { name, email, admin, userID } = decoded
 				req.user = {
 					name,
 					email,
 					admin,
+					userID,
 				}
 				next()
 			} else next(new Error('Authentication failed.'))

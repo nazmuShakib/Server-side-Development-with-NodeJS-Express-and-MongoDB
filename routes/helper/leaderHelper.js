@@ -5,7 +5,6 @@ const getAllLeaders = async (req, res, next) => {
 		const leaders = await Leader.find(
 			{},
 			{
-				_id: 0,
 				__v: 0,
 				createdAt: 0,
 				updatedAt: 0,
@@ -31,7 +30,6 @@ const addLeader = async (req, res, next) => {
 const getLeaderById = async (req, res, next) => {
 	try {
 		const leader = await Leader.findById(req.params.leaderId, {
-			_id: 0,
 			__v: 0,
 			createdAt: 0,
 			updatedAt: 0,
@@ -87,6 +85,101 @@ const deleteLeader = async (req, res, next) => {
 		next(err)
 	}
 }
+const getComment = async (req, res, next) => {
+	try {
+		const leaders = await Leader.findById(req.params.leaderId, {
+			__v: 0,
+			createdAt: 0,
+			updatedAt: 0,
+		})
+			.populate('comments.author', '-_id -__v -password -admin')
+			.exec()
+		if (leaders) {
+			res.json(leaders.comments)
+			next()
+		} else {
+			const err = new Error('Leader not found.')
+			err.status = 404
+			next(err)
+		}
+		next()
+	} catch (err) {
+		next(err)
+	}
+}
+const postComment = async (req, res, next) => {
+	try {
+		const leader = await Leader.findById(req.params.leaderId)
+		if (leader) {
+			req.body.author = req.user.userID
+			await leader.comments.push(req.body)
+			await leader.save()
+			res.json({
+				message: 'New comment posted.',
+			})
+			next()
+		} else {
+			const err = new Error('Leader not found')
+			err.status = 404
+			next(err)
+		}
+	} catch (err) {
+		next(err)
+	}
+}
+const updateComment = async (req, res, next) => {
+	try {
+		const leader = await Leader.findById(req.params.leaderId).populate('comments.author')
+		const id1 = leader.comments.id(req.params.commentId).author.id
+		const id2 = req.user.userID
+		if (id1 === id2) {
+			if (leader && leader.comments.id(req.params.commentId) && req.body) {
+				if (req.body.rating)
+					leader.comments.id(req.params.commentId).rating = req.body.rating
+				if (req.body.comment)
+					leader.comments.id(req.params.commentId).comment = req.body.comment
+				await leader.save()
+				res.json({
+					message: 'Updated comment.',
+				})
+			} else {
+				next(new Error('No leaders'))
+			}
+			next()
+		} else {
+			const err = new Error('Leader not found.')
+			err.status = 404
+			next(err)
+		}
+	} catch (err) {
+		next(err)
+	}
+}
+const deleteComment = async (req, res, next) => {
+	try {
+		const leader = await Leader.findById(req.params.leaderId).populate('comments.author')
+		const id1 = leader.comments.id(req.params.commentId).author.id
+		const id2 = req.user.userID
+		if (id1 === id2) {
+			if (leader && leader.comments.id(req.params.commentId)) {
+				leader.comments.id(req.params.commentId).remove()
+				leader.save()
+				res.json({
+					message: 'Deleted comment.',
+				})
+			} else {
+				next(new Error('No leaders'))
+			}
+			next()
+		} else {
+			const err = new Error('Leader not found.')
+			err.status = 404
+			next(err)
+		}
+	} catch (err) {
+		next(err)
+	}
+}
 module.exports = {
 	getAllLeaders,
 	addLeader,
@@ -94,4 +187,8 @@ module.exports = {
 	getLeaderById,
 	updateLeader,
 	deleteLeader,
+	getComment,
+	postComment,
+	updateComment,
+	deleteComment,
 }

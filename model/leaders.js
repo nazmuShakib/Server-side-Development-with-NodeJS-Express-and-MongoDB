@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const commentSchema = require('./comments')
 
 const { Schema } = mongoose
 
@@ -22,6 +23,7 @@ const leaderSchema = new Schema(
 			type: String,
 			required: true,
 		},
+		comments: [commentSchema],
 	},
 	{
 		timestamps: true,

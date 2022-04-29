@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 require('mongoose-currency').loadType(mongoose)
+const commentSchema = require('./comments')
 
 const { Currency } = mongoose.Types
 const { Schema } = mongoose
@@ -24,6 +25,7 @@ const promotionSchema = new Schema(
 			required: true,
 			min: 0,
 		},
+		comments: [commentSchema],
 	},
 	{
 		timestamps: true,

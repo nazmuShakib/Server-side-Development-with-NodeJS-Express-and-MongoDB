@@ -31,9 +31,10 @@ const signUp = async (req, res, next) => {
 }
 const login = async (req, res, next) => {
 	try {
-		const { name, email, password, admin } = req.body
-		const user = await User.find({ name, email })
+		const { email, password } = req.body
+		const user = await User.find({ email })
 		if (user) {
+			const { name, admin, _id } = user[0]
 			const valid = await bcrypt.compare(password, user[0].password)
 			if (valid) {
 				const token = jwt.sign(
@@ -41,6 +42,7 @@ const login = async (req, res, next) => {
 						name,
 						email,
 						admin,
+						userID: _id,
 					},
 					process.env.ACCESS_TOKEN,
 					{

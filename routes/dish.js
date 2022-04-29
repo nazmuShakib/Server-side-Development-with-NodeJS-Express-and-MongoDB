@@ -6,6 +6,10 @@ const {
 	updateDish,
 	deleteAllDishes,
 	deleteDish,
+	getComment,
+	postComment,
+	updateComment,
+	deleteComment,
 } = require('./helper/dishHelper')
 
 const { verifyAdmin, verifyUser } = require('../middleware/authenticate')
@@ -45,5 +49,21 @@ router
 	})
 	.delete(verifyUser, verifyAdmin, (req, res, next) => {
 		deleteDish(req, res, next)
+	})
+router
+	.route('/:dishId/comments')
+	.get((req, res, next) => {
+		getComment(req, res, next)
+	})
+	.post(verifyUser, (req, res, next) => {
+		postComment(req, res, next)
+	})
+router
+	.route('/:dishId/comments/:commentId')
+	.put(verifyUser, (req, res, next) => {
+		updateComment(req, res, next)
+	})
+	.delete(verifyUser, (req, res, next) => {
+		deleteComment(req, res, next)
 	})
 module.exports = router
