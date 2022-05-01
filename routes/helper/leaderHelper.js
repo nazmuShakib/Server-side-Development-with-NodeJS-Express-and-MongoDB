@@ -10,7 +10,7 @@ const getAllLeaders = async (req, res, next) => {
 				updatedAt: 0,
 			}
 		)
-		res.json(leaders)
+		res.status(200).json(leaders)
 		next()
 	} catch (err) {
 		next(err)
@@ -19,7 +19,7 @@ const getAllLeaders = async (req, res, next) => {
 const addLeader = async (req, res, next) => {
 	try {
 		await Leader.create(req.body)
-		res.json({
+		res.status(201).json({
 			message: 'New leader added',
 		})
 		next()
@@ -34,7 +34,7 @@ const getLeaderById = async (req, res, next) => {
 			createdAt: 0,
 			updatedAt: 0,
 		})
-		res.json(leader)
+		res.status(200).json(leader)
 		next()
 	} catch (err) {
 		next(err)
@@ -53,10 +53,14 @@ const updateLeader = async (req, res, next) => {
 				}
 			)
 		)
-			res.json({
+			res.status(200).json({
 				message: 'Updated leader.',
 			})
-		else next(new Error('Invalid ID.'))
+		else {
+			const err = new Error('ID not found.')
+			err.status = 404
+			next(err)
+		}
 		next()
 	} catch (err) {
 		next(err)
@@ -65,7 +69,7 @@ const updateLeader = async (req, res, next) => {
 const deleteAllLeaders = async (req, res, next) => {
 	try {
 		await Leader.deleteMany({})
-		res.json({
+		res.status(200).json({
 			message: 'Deleted all leaders.',
 		})
 		next()
@@ -76,10 +80,14 @@ const deleteAllLeaders = async (req, res, next) => {
 const deleteLeader = async (req, res, next) => {
 	try {
 		if (await Leader.findByIdAndDelete(req.params.leaderId))
-			res.json({
+			res.status(200).json({
 				message: 'Deleted leader.',
 			})
-		else next(new Error('Invalid ID.'))
+		else {
+			const err = new Error('ID not found.')
+			err.status = 404
+			next(err)
+		}
 		next()
 	} catch (err) {
 		next(err)
@@ -95,7 +103,7 @@ const getComment = async (req, res, next) => {
 			.populate('comments.author', '-_id -__v -password -admin')
 			.exec()
 		if (leaders) {
-			res.json(leaders.comments)
+			res.status(200).json(leaders.comments)
 			next()
 		} else {
 			const err = new Error('Leader not found.')
@@ -114,7 +122,7 @@ const postComment = async (req, res, next) => {
 			req.body.author = req.user.userID
 			await leader.comments.push(req.body)
 			await leader.save()
-			res.json({
+			res.status(200).json({
 				message: 'New comment posted.',
 			})
 			next()
@@ -139,11 +147,13 @@ const updateComment = async (req, res, next) => {
 				if (req.body.comment)
 					leader.comments.id(req.params.commentId).comment = req.body.comment
 				await leader.save()
-				res.json({
+				res.status(200).json({
 					message: 'Updated comment.',
 				})
 			} else {
-				next(new Error('No leaders'))
+				const err = new Error('Leader not found.')
+				err.status = 404
+				next(err)
 			}
 			next()
 		} else {
@@ -164,11 +174,13 @@ const deleteComment = async (req, res, next) => {
 			if (leader && leader.comments.id(req.params.commentId)) {
 				leader.comments.id(req.params.commentId).remove()
 				leader.save()
-				res.json({
+				res.status(200).json({
 					message: 'Deleted comment.',
 				})
 			} else {
-				next(new Error('No leaders'))
+				const err = new Error('Leader not found.')
+				err.status = 404
+				next(err)
 			}
 			next()
 		} else {

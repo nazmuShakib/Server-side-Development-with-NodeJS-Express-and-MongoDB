@@ -5,7 +5,7 @@ const User = require('../../model/users')
 const getAllUsers = async (req, res, next) => {
 	try {
 		const users = await User.find({}, { __v: 0, _id: 0 })
-		res.json(users)
+		res.status(200).json(users)
 	} catch (err) {
 		next(err)
 	}
@@ -21,7 +21,7 @@ const signUp = async (req, res, next) => {
 			admin,
 		})
 		await user.save()
-		res.json({
+		res.status(201).json({
 			message: 'SignUp successful.',
 		})
 		next()
@@ -49,18 +49,22 @@ const login = async (req, res, next) => {
 						expiresIn: '1h',
 					}
 				)
-				res.json({
+				res.status(200).json({
 					message: 'Login Successful.',
 					access_token: token,
 				})
 			} else {
-				next(new Error('Authentication failed.'))
+				const err = new Error('Authentication failed.')
+				err.status = 401
+				next(err)
 			}
 		} else {
-			next(new Error('Authentication failed.'))
+			const err = new Error('Authentication failed.')
+			err.status = 401
+			next(err)
 		}
 	} catch (err) {
-		next(new Error('Authentication failed.'))
+		next(err)
 	}
 }
 module.exports = {

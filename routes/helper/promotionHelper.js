@@ -10,7 +10,7 @@ const getAllPromotions = async (req, res, next) => {
 				updatedAt: 0,
 			}
 		)
-		res.json(promotions)
+		res.status(200).json(promotions)
 		next()
 	} catch (err) {
 		next(err)
@@ -19,7 +19,7 @@ const getAllPromotions = async (req, res, next) => {
 const addPromotion = async (req, res, next) => {
 	try {
 		await Promotion.create(req.body)
-		res.json({
+		res.status(201).json({
 			message: 'New promotion added',
 		})
 		next()
@@ -34,7 +34,7 @@ const getPromotionById = async (req, res, next) => {
 			createdAt: 0,
 			updatedAt: 0,
 		})
-		res.json(promotion)
+		res.status(200).json(promotion)
 		next()
 	} catch (err) {
 		next(err)
@@ -53,10 +53,14 @@ const updatePromotion = async (req, res, next) => {
 				}
 			)
 		)
-			res.json({
+			res.status(200).json({
 				message: 'Updated promotion.',
 			})
-		else next(new Error('Invalid ID.'))
+		else {
+			const err = new Error('ID not found.')
+			err.status = 404
+			next(err)
+		}
 		next()
 	} catch (err) {
 		next(err)
@@ -65,7 +69,7 @@ const updatePromotion = async (req, res, next) => {
 const deleteAllPromotions = async (req, res, next) => {
 	try {
 		await Promotion.deleteMany({})
-		res.json({
+		res.status(200).json({
 			message: 'Deleted all promotions.',
 		})
 		next()
@@ -76,10 +80,14 @@ const deleteAllPromotions = async (req, res, next) => {
 const deletePromotion = async (req, res, next) => {
 	try {
 		if (await Promotion.findByIdAndDelete(req.params.promotionId))
-			res.json({
+			res.status(200).json({
 				message: 'Deleted promotion.',
 			})
-		else next(new Error('Invalid ID.'))
+		else {
+			const err = new Error('ID not found.')
+			err.status = 404
+			next(err)
+		}
 		next()
 	} catch (err) {
 		next(err)
@@ -95,7 +103,7 @@ const getComment = async (req, res, next) => {
 			.populate('comments.author', '-_id -__v -password -admin')
 			.exec()
 		if (promotions) {
-			res.json(promotions.comments)
+			res.status(200).json(promotions.comments)
 			next()
 		} else {
 			const err = new Error('Promotion not found.')
@@ -114,7 +122,7 @@ const postComment = async (req, res, next) => {
 			req.body.author = req.user.userID
 			await promotion.comments.push(req.body)
 			await promotion.save()
-			res.json({
+			res.status(200).json({
 				message: 'New comment posted.',
 			})
 			next()
@@ -141,11 +149,13 @@ const updateComment = async (req, res, next) => {
 				if (req.body.comment)
 					promotion.comments.id(req.params.commentId).comment = req.body.comment
 				await promotion.save()
-				res.json({
+				res.status(200).json({
 					message: 'Updated comment.',
 				})
 			} else {
-				next(new Error('No promotions'))
+				const err = new Error('Promotion not found.')
+				err.status = 404
+				next(err)
 			}
 			next()
 		} else {
@@ -168,11 +178,13 @@ const deleteComment = async (req, res, next) => {
 			if (promotion && promotion.comments.id(req.params.commentId)) {
 				promotion.comments.id(req.params.commentId).remove()
 				promotion.save()
-				res.json({
+				res.status(200).json({
 					message: 'Deleted comment.',
 				})
 			} else {
-				next(new Error('No promotions'))
+				const err = new Error('Promotion not found.')
+				err.status = 404
+				next(err)
 			}
 			next()
 		} else {
