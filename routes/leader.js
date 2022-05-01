@@ -51,7 +51,7 @@ router
 		deleteLeader(req, res, next)
 	})
 router
-	.route('/:promotionId/comments')
+	.route('/:leaderId/comments')
 	.get((req, res, next) => {
 		getComment(req, res, next)
 	})
@@ -59,7 +59,7 @@ router
 		postComment(req, res, next)
 	})
 router
-	.route('/:promotionId/comments/:commentId')
+	.route('/:leaderId/comments/:commentId')
 	.put(verifyUser, (req, res, next) => {
 		updateComment(req, res, next)
 	})
